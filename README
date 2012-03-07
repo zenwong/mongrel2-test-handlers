@@ -1,0 +1,23 @@
+Some bare bones handlers for me to learn more about mongrel2.
+
+There are only 2 functions, recv and reply, just setup zmq PULL socket and PUB socket.
+
+int main(int argc, char **argv){
+  void *ctx = zmq_init(1);
+  void *pull = zmq_socket(ctx, ZMQ_PULL);
+  zmq_connect("tcp://*:1111");
+
+  void *pub = zmq_socket(ctx, ZMQ_PUB);
+  zmq_connect("tcp://*:1112");
+
+  while(1){
+    request *r = receive(pull);
+
+    reply(pub, r, "hello world from handler\n");
+  }
+
+  sleep(1);
+  return 0;
+}
+
+
