@@ -19,7 +19,7 @@ struct connection{
 
 
 struct request{
-  string uuid, conn, path, ip, cookie, method, query;
+  string uuid, conn, path, ip, cookie, method, query, body;
 };
 
 request mrecv(socket_t& socket){

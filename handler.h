@@ -6,7 +6,21 @@ typedef struct{
   char *uuid, *conn, *path, *ip, *cookie, *method, *query;
 } request;
 
-request *receive(void *socket){
+typedef struct{
+  void *ctx, *pull, *pub;
+} mtx;
+
+mtx *init(char *pull, char *pub){
+  mtx *m = malloc(sizeof(mtx));
+
+  m->ctx  = zmq_init(1);
+  m->pull = zmq_socket(m->ctx, ZMQ_PULL); zmq_connect(m->pull, pull);
+  m->pub  = zmq_socket(m->ctx, ZMQ_PUB);  zmq_connect(m->pub,  pub);
+
+  return m;
+}
+
+request *mrecv(void *socket){
   char *netstr = s_recv(socket);
   request *r = malloc(sizeof(request));
 
@@ -39,7 +53,7 @@ void dump(request *r){
   //fprintf(stdout, "query  = %s\n", r->query);
 }
 
-void reply(void *socket, request *r, char *body){
+void mreply(void *socket, request *r, char *body){
   char *reply = malloc(strlen(r->uuid) + strlen(r->conn) + strlen(body) + 1000);
   sprintf(reply, "%s %d:%s, HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s",
           r->uuid, strlen(r->conn), r->conn, strlen(body), body);
